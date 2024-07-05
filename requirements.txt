@@ -1,0 +1,4 @@
+pre-commit==3.7.0
+apache-airflow==2.9.0
+dbt
+minio==7.2.5

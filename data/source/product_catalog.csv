@@ -1,0 +1,7 @@
+product_id,product_name,category,price
+P001,Product 1,Category A,-100.0
+P002,Product 2,Category B,200.0
+P003,Product 3,Category A,150.0
+P004,,Category C,300.0
+P005,Product 5,Category C,invalid_price
+P001,Product 1,Category A,100.0

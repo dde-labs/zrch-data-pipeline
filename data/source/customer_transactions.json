@@ -1,0 +1,162 @@
+[
+    {
+        "transaction_id": "b1182d23-5bf8-4676-9f12-a0e912011caa",
+        "customer_id": "C001",
+        "product_id": "P003",
+        "quantity": 6,
+        "price": 150.0,
+        "timestamp": "2024-02-04T13:06:35"
+    },
+    {
+        "transaction_id": "3b019fcb-f96d-4403-948c-93f3028d042b",
+        "customer_id": "C003",
+        "product_id": "P001",
+        "quantity": 10,
+        "price": 100.0,
+        "timestamp": "2024-06-22T11:42:33"
+    },
+    {
+        "transaction_id": "346d2b7e-00d3-41af-b53e-0c8624aeba79",
+        "customer_id": "C001",
+        "product_id": "P001",
+        "quantity": 5,
+        "price": 100.0,
+        "timestamp": "2024-03-12T16:16:16"
+    },
+    {
+        "transaction_id": "9ad7558f-eecb-425b-864f-768db080e003",
+        "customer_id": "C002",
+        "product_id": "P002",
+        "quantity": 3,
+        "price": 200.0,
+        "timestamp": "2024-03-29T04:01:02"
+    },
+    {
+        "transaction_id": "b51d70d8-582d-4972-ba08-9ca81cc5a8a0",
+        "customer_id": "C003",
+        "product_id": "P002",
+        "quantity": 1,
+        "price": 200.0,
+        "timestamp": "2024-02-10T09:54:36"
+    },
+    {
+        "transaction_id": "b1182d23-5bf8-4676-9f12-a0e912011caa",
+        "customer_id": "C001",
+        "product_id": "P003",
+        "quantity": 6,
+        "price": 150.0,
+        "timestamp": "2024-02-04T13:06:35"
+    },
+    {
+        "transaction_id": "3b019fcb-f96d-4403-948c-93f3028d042b",
+        "customer_id": "C003",
+        "product_id": "P001",
+        "quantity": 10,
+        "price": 100.0,
+        "timestamp": "2024-06-22T11:42:33"
+    },
+    {
+        "transaction_id": "346d2b7e-00d3-41af-b53e-0c8624aeba79",
+        "customer_id": "C001",
+        "product_id": "P001",
+        "quantity": 5,
+        "price": 100.0,
+        "timestamp": "2024-03-12T16:16:16"
+    },
+    {
+        "transaction_id": "9ad7558f-eecb-425b-864f-768db080e003",
+        "customer_id": "C002",
+        "product_id": "P002",
+        "quantity": 3,
+        "price": 200.0,
+        "timestamp": "2024-03-29T04:01:02"
+    },
+    {
+        "transaction_id": "b51d70d8-582d-4972-ba08-9ca81cc5a8a0",
+        "customer_id": "C003",
+        "product_id": "P002",
+        "quantity": 1,
+        "price": 200.0,
+        "timestamp": "2024-02-10T09:54:36"
+    },
+    {
+        "transaction_id": "b1182d23-5bf8-4676-9f12-a0e912011caa",
+        "customer_id": "C001",
+        "product_id": "P003",
+        "quantity": 6,
+        "price": 150.0,
+        "timestamp": "2024-02-04T13:06:35"
+    },
+    {
+        "transaction_id": "3b019fcb-f96d-4403-948c-93f3028d042b",
+        "customer_id": "C003",
+        "product_id": "P001",
+        "quantity": 10,
+        "price": 100.0,
+        "timestamp": "2024-06-22T11:42:33"
+    },
+    {
+        "transaction_id": "346d2b7e-00d3-41af-b53e-0c8624aeba79",
+        "customer_id": "C001",
+        "product_id": "P001",
+        "quantity": 5,
+        "price": 100.0,
+        "timestamp": "2024-03-12T16:16:16"
+    },
+    {
+        "transaction_id": "9ad7558f-eecb-425b-864f-768db080e003",
+        "customer_id": "C002",
+        "product_id": "P002",
+        "quantity": 3,
+        "price": 200.0,
+        "timestamp": "2024-03-29T04:01:02"
+    },
+    {
+        "transaction_id": "b51d70d8-582d-4972-ba08-9ca81cc5a8a0",
+        "customer_id": "C003",
+        "product_id": "P002",
+        "quantity": 1,
+        "price": 200.0,
+        "timestamp": "2024-02-10T09:54:36"
+    },
+    {
+        "transaction_id": "b1182d23-5bf8-4676-9f12-a0e912011caa",
+        "customer_id": "C001",
+        "product_id": "P003",
+        "quantity": 6,
+        "price": 150.0,
+        "timestamp": "2024-02-04T13:06:35"
+    },
+    {
+        "transaction_id": "3b019fcb-f96d-4403-948c-93f3028d042b",
+        "customer_id": "C003",
+        "product_id": "P001",
+        "quantity": 10,
+        "price": 100.0,
+        "timestamp": "2024-06-22T11:42:33"
+    },
+    {
+        "transaction_id": "346d2b7e-00d3-41af-b53e-0c8624aeba79",
+        "customer_id": "C001",
+        "product_id": "P001",
+        "quantity": 5,
+        "price": 100.0,
+        "timestamp": "2024-03-12T16:16:16"
+    },
+    {
+        "transaction_id": "9ad7558f-eecb-425b-864f-768db080e003",
+        "customer_id": "C002",
+        "product_id": "P002",
+        "quantity": 3,
+        "price": 200.0,
+        "timestamp": "2024-03-29T04:01:02"
+    },
+    {
+        "transaction_id": "b51d70d8-582d-4972-ba08-9ca81cc5a8a0",
+        "customer_id": "C003",
+        "product_id": "P002",
+        "quantity": 1,
+        "price": 200.0,
+        "timestamp": "2024-02-10T09:54:36"
+    }
+]
