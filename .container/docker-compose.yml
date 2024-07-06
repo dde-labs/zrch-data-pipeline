@@ -1,9 +1,9 @@
----
 x-airflow-common:
   &airflow-common
   image: app-airflow:latest
   build:
-    context: .
+    context: ..
+    dockerfile: ./.container/Dockerfile
   environment:
     &airflow-common-env
     AIRFLOW_CONFIG: '/opt/airflow/airflow.cfg'
@@ -11,7 +11,6 @@ x-airflow-common:
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/tests:/opt/airflow/tests
-    - ${AIRFLOW_PROJ_DIR:-.}/include:/opt/airflow/include
     - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/airflow/data
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
@@ -27,6 +26,7 @@ x-airflow-common:
 
 services:
   airflow-webserver:
+    container_name: airflow-webserver
     <<: *airflow-common
     command: webserver
     ports:
@@ -44,6 +44,7 @@ services:
         condition: service_completed_successfully
 
   airflow-scheduler:
+    container_name: airflow-scheduler
     <<: *airflow-common
     command: scheduler
     healthcheck:
@@ -59,13 +60,14 @@ services:
         condition: service_completed_successfully
 
   postgres:
+    container_name: postgres
     image: postgres:13
     networks:
       - airflow
     environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+      POSTGRES_USER: ${AIRFLOW_DB_USER:-airflow}
+      POSTGRES_PASSWORD: ${AIRFLOW_DB_PASS:-airflow}
+      POSTGRES_DB: ${AIRFLOW_DB_DB:-airflow}
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
     healthcheck:
@@ -78,7 +80,6 @@ services:
   airflow-init:
     <<: *airflow-common
     entrypoint: /bin/bash
-    # yamllint disable rule:line-length
     command:
       - -c
       - |
@@ -127,7 +128,6 @@ services:
         mkdir -p /sources/logs /sources/dags /sources/plugins
         chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
         exec /entrypoint airflow version
-    # yamllint enable rule:line-length
     environment:
       <<: *airflow-common-env
       _AIRFLOW_DB_MIGRATE: 'true'

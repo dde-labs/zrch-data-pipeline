@@ -1,0 +1,21 @@
+services:
+  mysql:
+    container_name: mysql
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'warehouse'
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - '3306:3306'
+    networks:
+      - warehouse_network
+    volumes:
+      - ../mnt/mysql:/var/lib/mysql
+
+networks:
+  warehouse_network:
+    name: airflow
+    driver: bridge

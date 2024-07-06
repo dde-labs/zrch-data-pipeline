@@ -1,25 +1,24 @@
-FROM apache/airflow:2.9.0-python3.11
+FROM apache/airflow:2.9.2-python3.11
 
 USER root
 
-COPY packages.txt /
+COPY ./packages.txt /
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        vim \
         wget \
-    && xargs apt-get -y install $(grep -vE "^\s*#" /packages.txt | tr "\n" "\t") \
+        vim \
+    && grep -vE '^\s*#' /packages.txt | sed -e 's/\r//g' | tr "\n" " " | xargs sudo apt-get install -y \
     && apt-get autoremove -yqq --purge \
     && apt-get clean
 
 USER airflow
 
-# This setting will fix airflow cannot import include/ to dags/
 ENV PYTHONPATH "${PYTHONPATH}:${AIRFLOW_HOME}"
 
-COPY --chown=airflow:root airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
+COPY --chown=airflow:root ./airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
 
-COPY --chown=airflow:root requirements.txt /
+COPY --chown=airflow:root ./requirements.txt /
 
 RUN uv pip install  \
     --no-cache-dir \
