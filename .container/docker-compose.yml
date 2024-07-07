@@ -78,6 +78,7 @@ services:
     restart: always
 
   airflow-init:
+    container_name: airflow-init
     <<: *airflow-common
     entrypoint: /bin/bash
     command:

@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from airflow.decorators import dag, task
 from airflow.operators.python import get_current_context
@@ -29,7 +30,7 @@ def load_customer_dag():
     customer_sensor = FileSensor(
         task_id="is_file_available",
         fs_conn_id="file_local",
-        filepath="raw/customer_transactions.json",
+        filepath="raw/customer_transactions1.json",
         poke_interval=5,
         timeout=20,
     )
@@ -43,18 +44,20 @@ def load_customer_dag():
 
     @task.branch(task_id="branching")
     def switch():
-        table_status = check_table_exists(name='customer_transaction')
+        table_status = check_table_exists(name='raw_customer_transaction')
         print(f"Table Status: {table_status}")
         if table_status[0][0] == 0:
-            print("Table 'customer_transaction' does not exists, creating it.")
+            print(
+                "Table 'raw_customer_transaction' does not exists, creating it."
+            )
             return 'create_table_task'
-        print("Table 'customer_transaction' already exists.")
+        print("Table 'raw_customer_transaction' already exists.")
         return 'do_nothing'
 
     create_table_op = MySqlOperator(
         mysql_conn_id="warehouse",
         task_id="create_table_task",
-        sql="sql/customer_transactions.sql",
+        sql="sql/raw_customer_transaction.sql",
     )
 
     do_nothing_op = EmptyOperator(task_id='do_nothing')
@@ -65,6 +68,7 @@ def load_customer_dag():
         print(f"Context: {context}")
         dag_run: DagRun = context["dag_run"]
         print(dag_run.conf.get("id"))
+        execution_date: datetime = context["execution_date"]
 
         # NOTE: test duckdb
         hook = BaseHook.get_connection('warehouse')
@@ -95,14 +99,15 @@ def load_customer_dag():
             f";"
         ).show()
         conn.sql(
-            f"INSERT INTO mysqldb.warehouse.customer_transaction BY NAME ( "
+            f"INSERT INTO mysqldb.warehouse.raw_customer_transaction BY NAME ( "
             f"SELECT "
             f" transaction_id, "
             f" customer_id, "
             f" product_id, "
             f" quantity, "
             f" price, "
-            f" strptime(timestamp, '%Y-%m-%dT%H:%M:%S') AS timestamp "
+            f" strptime(timestamp, '%Y-%m-%dT%H:%M:%S') AS timestamp, "
+            f" '{execution_date:%Y-%m-%d %H:%M:%S}' AS load_date "
             f"FROM read_json_auto('{data_path}/raw/customer_transactions.json')"
             f");"
         )

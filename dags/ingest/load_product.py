@@ -44,18 +44,18 @@ def load_product_dag():
 
     @task.branch(task_id="branching")
     def switch():
-        table_status = check_table_exists(name='product_catalog')
+        table_status = check_table_exists(name='raw_product_catalog')
         print(f"Table Status: {table_status}")
         if table_status[0][0] == 0:
-            print("Table 'customer_transaction' does not exists, creating it.")
+            print("Table 'raw_product_catalog' does not exists, creating it.")
             return 'create_table_task'
-        print("Table 'customer_transaction' already exists.")
+        print("Table 'raw_product_catalog' already exists.")
         return 'do_nothing'
 
     create_table_op = MySqlOperator(
         mysql_conn_id="warehouse",
         task_id="create_table_task",
-        sql="sql/product_catalog.sql",
+        sql="sql/raw_product_catalog.sql",
     )
 
     do_nothing_op = EmptyOperator(task_id='do_nothing')
@@ -100,7 +100,7 @@ def load_product_dag():
             f";"
         ).show()
         conn.sql(
-            f"INSERT INTO mysqldb.warehouse.product_catalog BY NAME ( "
+            f"INSERT INTO mysqldb.warehouse.raw_product_catalog BY NAME ( "
             f"SELECT "
             f" product_id, "
             f" product_name, "
