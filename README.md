@@ -1,6 +1,6 @@
 # ZRCH: Data Pipeline
 
-ZRCH Assignment for create Data Pipeline.
+**ZRCH** Assignment for create Data Pipeline.
 
 > You are tasked with designing a data pipeline for a fictional e-commerce company,
 > "ShopSmart". The company wants to analyze customer behavior, sales performance,
