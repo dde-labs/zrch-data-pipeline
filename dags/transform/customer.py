@@ -1,5 +1,4 @@
-from datetime import datetime
-
+from pendulum.datetime import DateTime
 from airflow.decorators import dag, task
 from airflow.operators.python import get_current_context
 from airflow.operators.empty import EmptyOperator
@@ -33,7 +32,7 @@ def customer_dag():
         table_status = check_table_exists(name='tnx_customer')
         print(f"Table Status: {table_status}")
         if table_status[0][0] == 0:
-            print("Table 'customer_transaction' does not exists, creating it.")
+            print("Table 'tnx_customer' does not exists, creating it.")
             return 'create_table_task'
         print("Table 'tnx_customer' already exists.")
         return 'do_nothing'
@@ -50,8 +49,8 @@ def customer_dag():
     def load_task():
         context = get_current_context()
         print(context["var"])
+        logical_date: DateTime = context["logical_date"]
 
-        execution_date: datetime = context["execution_date"]
         hook = BaseHook.get_connection('warehouse')
         conn = duckdb.connect()
         conn.sql("INSTALL mysql")
@@ -66,26 +65,58 @@ def customer_dag():
             f"USE mysqldb;"
         )
         conn.sql(
-            f"BEGIN TRANSACTION; "
-            f"DELETE mysqldb.warehouse.tnx_customer "
-            f"WHERE load_date = '{execution_date:%Y-%m-%d %H:%M:%S}' "
-            f";"
-            f"INSERT INTO mysqldb.warehouse.tnx_customer BY NAME ( "
-            f"SELECT DISTINCT "
-            f"  transaction_id, "
-            f"  customer_id, "
-            f"  product_id, "
-            f"  quantity, "
-            f"  price, "
-            f"  timestamp, "
-            f"  load_date "
-            f"FROM mysqldb.warehouse.raw_customer_transaction "
-            f"WHERE load_date = '{execution_date:%Y-%m-%d %H:%M:%S}' "
-            f")"
-            f"COMMIT; "
+            f"""
+            SELECT
+                transaction_id, 
+                customer_id, 
+                product_id, 
+                quantity, 
+                price, 
+                timestamp, 
+                '{logical_date:%Y-%m-%d}' AS load_date
+            FROM (
+                    SELECT DISTINCT 
+                        transaction_id, 
+                        customer_id, 
+                        product_id, 
+                        quantity, 
+                        price, 
+                        timestamp
+                    FROM mysqldb.warehouse.raw_customer_transaction 
+                    WHERE load_date = '{logical_date:%Y-%m-%d}'
+                ) AS DIST_SRC 
+            """
+        ).show()
+        conn.sql(
+            f"""USE mysqldb;
+            BEGIN TRANSACTION;
+            INSERT INTO mysqldb.warehouse.tnx_customer BY NAME ( 
+            SELECT
+                transaction_id, 
+                customer_id, 
+                product_id, 
+                quantity, 
+                price, 
+                timestamp, 
+                '{logical_date:%Y-%m-%d}' AS load_date
+            FROM (
+                    SELECT DISTINCT 
+                        transaction_id, 
+                        customer_id, 
+                        product_id, 
+                        quantity, 
+                        price, 
+                        timestamp
+                    FROM mysqldb.warehouse.raw_customer_transaction 
+                    WHERE load_date = '{logical_date:%Y-%m-%d}'
+                ) AS DIST_SRC 
+            );
+            COMMIT;
+            """
         )
+
     (
-        hook_mysql.as_setup()
+        hook_mysql()
         >> switch()
         >> [create_table_op, do_nothing_op]
         >> load_task()

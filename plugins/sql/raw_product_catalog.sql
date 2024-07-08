@@ -4,5 +4,5 @@ CREATE TABLE warehouse.raw_product_catalog
     product_name varchar(128),
     category varchar(128),
     price float,
-    load_date datetime
+    load_date date
 )

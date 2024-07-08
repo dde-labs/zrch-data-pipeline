@@ -1,5 +1,6 @@
 import logging
 
+from pendulum.datetime import DateTime
 from airflow.decorators import dag, task
 from airflow.operators.python import get_current_context
 from airflow.operators.empty import EmptyOperator
@@ -67,6 +68,11 @@ def load_product_dag():
         dag_run: DagRun = context["dag_run"]
         print(dag_run.conf.get("id"))
 
+        print("Variable from context:")
+        print(context["var"])
+
+        execution_date: DateTime = context["execution_date"]
+
         # NOTE: test duckdb
         hook = BaseHook.get_connection('warehouse')
         conn = duckdb.connect()
@@ -81,40 +87,41 @@ def load_product_dag():
             f"AS mysqldb (TYPE MYSQL); "
             f"USE mysqldb;"
         )
-        # conn.sql("SHOW TABLES;").show()
+
         data_path: str = '/opt/airflow/data'
         conn.sql(
-            f"SELECT "
-            f" product_id, "
-            f" product_name, "
-            f" category, "
-            f" CAST( "
-            f"   CASE WHEN price = 'invalid_price' THEN '0.0' "
-            f"        ELSE price "
-            f"   END AS DOUBLE "
-            f" ) AS price "
-            f"FROM read_csv("
-            f" '{data_path}/raw/product_catalog.csv', "
-            f" delim = ',',  header = true "
-            f") LIMIT 10 "
-            f";"
+            f"""
+            SELECT 
+                product_id, 
+                product_name, 
+                category, 
+                CAST( 
+                    CASE WHEN price = 'invalid_price' THEN '0.0' ELSE price END
+                    AS DOUBLE 
+                ) AS price 
+            FROM read_csv(
+                '{data_path}/raw/product_catalog.csv', delim=',',  header=true
+            )
+            LIMIT 10 
+            ;"""
         ).show()
         conn.sql(
-            f"INSERT INTO mysqldb.warehouse.raw_product_catalog BY NAME ( "
-            f"SELECT "
-            f" product_id, "
-            f" product_name, "
-            f" category, "
-            f" CAST( "
-            f"   CASE WHEN price = 'invalid_price' THEN '0.0' "
-            f"        ELSE price "
-            f"   END AS DOUBLE "
-            f" ) AS price "
-            f"FROM read_csv("
-            f" '{data_path}/raw/product_catalog.csv', "
-            f" delim = ',', header = true "
-            f")"
-            f");"
+            f"""
+            INSERT INTO mysqldb.warehouse.raw_product_catalog BY NAME ( 
+            SELECT 
+                product_id, 
+                product_name, 
+                category, 
+                CAST( 
+                    CASE WHEN price = 'invalid_price' THEN '0.0' ELSE price END
+                    AS DOUBLE 
+                ) AS price, 
+                '{execution_date:%Y-%m-%d}' AS load_date 
+            FROM read_csv(
+                '{data_path}/raw/product_catalog.csv', delim=',', header=true
+            )
+            );
+            """
         )
 
     (

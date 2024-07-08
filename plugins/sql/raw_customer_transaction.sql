@@ -6,5 +6,5 @@ CREATE TABLE warehouse.raw_customer_transaction
     quantity int,
     price float,
     timestamp datetime,
-    load_date datetime
+    load_date date
 )

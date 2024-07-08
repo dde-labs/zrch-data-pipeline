@@ -1,7 +1,4 @@
-from datetime import datetime
-
 from airflow.decorators import dag, task
-from airflow.operators.python import get_current_context
 from airflow.utils import timezone
 from airflow.hooks.base import BaseHook
 from airflow.providers.mysql.hooks.mysql import MySqlHook
@@ -9,9 +6,9 @@ import duckdb
 
 
 @dag(
-    dag_id='customer',
+    dag_id='question',
     start_date=timezone.datetime(2024, 7, 5),
-    params={'id': 'customer'},
+    params={'id': 'question'},
     schedule_interval=None,
     catchup=False,
     default_args={"owner": "korawica"},
@@ -41,89 +38,57 @@ def question_dag():
 
     @task
     def first_question_task():
-        context = get_current_context()
-        print(context["var"])
-
-        execution_date: datetime = context["execution_date"]
-
+        """Question: What are the top 2 best-selling products?"""
         conn = get_duckdb_mysql_conn()
         conn.sql(
-            f"BEGIN TRANSACTION; "
-            f"DELETE mysqldb.warehouse.tnx_customer "
-            f"WHERE load_date = '{execution_date:%Y-%m-%d %H:%M:%S}' "
-            f";"
-            f"INSERT INTO mysqldb.warehouse.tnx_customer BY NAME ( "
-            f"SELECT DISTINCT "
-            f"  transaction_id, "
-            f"  customer_id, "
-            f"  product_id, "
-            f"  quantity, "
-            f"  price, "
-            f"  timestamp, "
-            f"  load_date "
-            f"FROM mysqldb.warehouse.raw_customer_transaction "
-            f"WHERE load_date = '{execution_date:%Y-%m-%d %H:%M:%S}' "
-            f")"
-            f"COMMIT; "
+            """
+            SELECT
+                MST.product_id,
+                COALESCE(SUM(quantity * TNX.price), 0.0) AS sales_volume
+            FROM mysqldb.warehouse.mst_product AS MST
+            LEFT JOIN mysqldb.warehouse.tnx_customer AS TNX
+                ON MST.product_id = TNX.product_id
+            GROUP BY MST.product_id
+            ORDER BY sales_volume DESC
+            LIMIT 2
+            """
         )
 
     @task
     def second_question_task():
-        context = get_current_context()
-        print(context["var"])
-
-        execution_date: datetime = context["execution_date"]
-
+        """Question: What is the average order value per customer?"""
         conn = get_duckdb_mysql_conn()
         conn.sql(
-            f"BEGIN TRANSACTION; "
-            f"DELETE mysqldb.warehouse.tnx_customer "
-            f"WHERE load_date = '{execution_date:%Y-%m-%d %H:%M:%S}' "
-            f";"
-            f"INSERT INTO mysqldb.warehouse.tnx_customer BY NAME ( "
-            f"SELECT DISTINCT "
-            f"  transaction_id, "
-            f"  customer_id, "
-            f"  product_id, "
-            f"  quantity, "
-            f"  price, "
-            f"  timestamp, "
-            f"  load_date "
-            f"FROM mysqldb.warehouse.raw_customer_transaction "
-            f"WHERE load_date = '{execution_date:%Y-%m-%d %H:%M:%S}' "
-            f")"
-            f"COMMIT; "
+            """
+            SELECT
+                customer_id,
+                COALESCE(
+                    SUM(quantity * price),
+                    0.0
+                ) / COUNT(transaction_id)       AS average_order
+            FROM mysqldb.warehouse.tnx_customer
+            GROUP BY customer_id
+            """
         )
 
     @task
     def third_question_task():
-        context = get_current_context()
-        print(context["var"])
-
-        execution_date: datetime = context["execution_date"]
-
+        """Question: What is the total revenue generated per product category?
+        """
         conn = get_duckdb_mysql_conn()
         conn.sql(
-            f"BEGIN TRANSACTION; "
-            f"DELETE mysqldb.warehouse.tnx_customer "
-            f"WHERE load_date = '{execution_date:%Y-%m-%d %H:%M:%S}' "
-            f";"
-            f"INSERT INTO mysqldb.warehouse.tnx_customer BY NAME ( "
-            f"SELECT DISTINCT "
-            f"  transaction_id, "
-            f"  customer_id, "
-            f"  product_id, "
-            f"  quantity, "
-            f"  price, "
-            f"  timestamp, "
-            f"  load_date "
-            f"FROM mysqldb.warehouse.raw_customer_transaction "
-            f"WHERE load_date = '{execution_date:%Y-%m-%d %H:%M:%S}' "
-            f")"
-            f"COMMIT; "
-        )
+            """
+            SELECT
+                category,
+                COALESCE(SUM(quantity * TNX.price), 0.0) AS revenue
+            FROM mysqldb.warehouse.mst_product AS MST
+            LEFT JOIN mysqldb.warehouse.tnx_customer AS TNX
+                ON MST.product_id = TNX.product_id
+            GROUP BY category
+            """
+        ).show()
 
-    hook_mysql.as_setup() >> [
+    hook_mysql() >> [
         first_question_task(),
         second_question_task(),
         third_question_task(),

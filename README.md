@@ -17,6 +17,10 @@
 
 ## Architecture
 
+```text
+LocalFile --> MySQL --> Log
+```
+
 > [!NOTE]
 > This it the first assignment that want to create end-to-end data pipeline from
 > source to serve analytic reports. So, I will try to orchestrate with **Airflow**
@@ -33,7 +37,7 @@ python -m venv venv
 (venv) pip install uv
 ```
 
-Then, setup the connection file on `./secrets`
+Then, setup the connection file on `./secrets/connections.yaml`
 
 ```yaml
 file_local:

@@ -6,5 +6,5 @@ CREATE TABLE warehouse.tnx_customer
     quantity int,
     price float,
     timestamp datetime,
-    load_date datetime
+    load_date date
 )
